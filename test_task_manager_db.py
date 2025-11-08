@@ -1,34 +1,35 @@
 #### ZDE BUDOU TESTY #### 
-from src.db_mysql import add_user, get_users
+from src.task_manager_db import add_task, get_tasks, update_task_state, delete_task
 import pytest
 
 @pytest.mark.parametrize(
-        "name, age, email",
+        "name, description, state",
         [
-            ("Petr", 18, "petr@svetr.cz"),
-            ("Rene", 50, "rene@svetr.cz"),
-            ("Rudolf", 43, "rudolf@svetr.cz"),
-            ("Karel", 33, None),
+            ("První úkol", "Popis úkolu 1", "pending"),
+            ("Druhý úkol", "Popis úkolu 2", "in_progress"),
+            ("Třetí úkol", "Popis úkolu 3", "completed"),
+            ("Čtvrtý úkol", "Popis úkolu 4", "pending"),
         ]
 )
-def test_add_user_happy_flow(conn, name, age, email):
-    # zavolat funkci add_user()
-    add_user(conn, name, age, email)
+def test_add_task_happy_flow(conn, name, description, state):
+    # zavolat funkci add_task()
+    add_task(conn, name, description, state)
 
-    # vlastni volani do DB a overeni, ze se uzivatel pridal
+    # vlastní volání do DB a ověření, že se úkol přidal
     cursor = conn.cursor(dictionary=True)
-    cursor.execute(f"SELECT id, name, age, email FROM users WHERE name = %s AND age = %s", (name, age))
-    users = cursor.fetchall()
-    user = users[0]
+    cursor.execute(f"SELECT id, name, description, state FROM tasks WHERE name = %s AND description = %s", (name, description))
+    tasks = cursor.fetchall()
+    task = tasks[0]
 
-    print(user)
+    print(task)
 
-    # kontrola, zda dany uzivatel existuje
-    assert user != None, f"Ocekavame ze se nam vrati uzivatel {name} ve veku {age}"
-    assert user['name'] == name
-    assert user['age'] == age
+    # kontrola, zda daný úkol existuje
+    assert task != None, f"Očekáváme, že se nám vrátí úkol {name} s popisem {description} a stavem {state}"
+    assert task['name'] == name
+    assert task['description'] == description
+    assert task['state'] == state
 
-
+"""
 @pytest.mark.parametrize(
         "name, age, email, error_type, error_message",
         [
@@ -60,3 +61,4 @@ def test_add_user_fixure(conn):
 
     # kontrola, zda dany uzivatel existuje
     assert user != None, f"Ocekavame ze se nam vrati uzivatel {"Fixator"} ve veku {12}"
+"""
